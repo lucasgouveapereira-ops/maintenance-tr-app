@@ -41,24 +41,31 @@ ChartJS.register(
 
 export default function Dashboard({ kpis, equipments, maintenances, onSelectEquipment, onNavigateToPreventive, onOpenNewOS }) {
   // Chart 1 Data: Breakdown Ranking (Most Breaked / Highest Downtime)
+  const topBreakdowns = kpis.breakdownRanking.slice(0, 5);
+
   const rankingData = {
-    labels: kpis.breakdownRanking.slice(0, 5).map(item => item.equipamentoNome),
+    labels: topBreakdowns.map(item => {
+      const full = item.equipamentoNome || '';
+      return full.length > 16 ? full.substring(0, 14) + '…' : (full || 'Sem nome');
+    }),
     datasets: [
       {
         label: 'Falhas Corretivas',
-        data: kpis.breakdownRanking.slice(0, 5).map(item => item.failureCount),
-        backgroundColor: 'rgba(239, 68, 68, 0.75)',
+        data: topBreakdowns.map(item => item.failureCount),
+        backgroundColor: 'rgba(239, 68, 68, 0.8)',
         borderColor: '#ef4444',
         borderWidth: 1,
-        borderRadius: 6
+        borderRadius: 4,
+        maxBarThickness: 24
       },
       {
-        label: 'Horas Parado (Downtime)',
-        data: kpis.breakdownRanking.slice(0, 5).map(item => item.totalDowntime),
-        backgroundColor: 'rgba(245, 158, 11, 0.75)',
+        label: 'Horas Parado',
+        data: topBreakdowns.map(item => item.totalDowntime),
+        backgroundColor: 'rgba(245, 158, 11, 0.8)',
         borderColor: '#f59e0b',
         borderWidth: 1,
-        borderRadius: 6
+        borderRadius: 4,
+        maxBarThickness: 24
       }
     ]
   };
@@ -96,7 +103,8 @@ export default function Dashboard({ kpis, equipments, maintenances, onSelectEqui
           maintenances.filter(m => m.tipo === 'Corretiva').reduce((acc, m) => acc + (Number(m.custoTotal) || 0), 0)
         ],
         backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-        borderRadius: 6
+        borderRadius: 4,
+        maxBarThickness: 36
       }
     ]
   };
@@ -106,12 +114,35 @@ export default function Dashboard({ kpis, equipments, maintenances, onSelectEqui
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        labels: { color: '#94a3b8', font: { family: 'Inter', size: 12 } }
+        position: 'top',
+        labels: { 
+          color: '#94a3b8', 
+          font: { family: 'Inter', size: 11 },
+          boxWidth: 12,
+          padding: 8
+        }
+      },
+      tooltip: {
+        callbacks: {
+          title: (tooltipItems) => {
+            if (!tooltipItems.length) return '';
+            const index = tooltipItems[0].dataIndex;
+            const target = topBreakdowns[index];
+            return target ? target.equipamentoNome : tooltipItems[0].label;
+          }
+        }
       }
     },
     scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+      x: { 
+        grid: { color: 'rgba(255,255,255,0.05)' }, 
+        ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 20 } 
+      },
+      y: { 
+        beginAtZero: true,
+        grid: { color: 'rgba(255,255,255,0.05)' }, 
+        ticks: { color: '#94a3b8', font: { size: 10 }, precision: 0 } 
+      }
     }
   };
 
