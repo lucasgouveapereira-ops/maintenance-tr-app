@@ -1,0 +1,18 @@
+{
+  "short_name": "TR Heavy Ops",
+  "name": "TR Heavy Ops — Controle de Manutenção de Equipamentos",
+  "description": "Sistema Integrado de Gestão de Manutenção de Máquinas Pesadas com Sincronização em Nuvem e Alertas NR-12/19",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0b0f19",
+  "theme_color": "#f59e0b",
+  "display": "standalone",
+  "orientation": "portrait-primary"
+}

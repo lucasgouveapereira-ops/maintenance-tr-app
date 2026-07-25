@@ -8,16 +8,19 @@ import MaintenanceList from './components/MaintenanceList';
 import MaintenanceFormModal from './components/MaintenanceFormModal';
 import PreventiveAlertsView from './components/PreventiveAlertsView';
 import ReportsView from './components/ReportsView';
+import FirebaseConfigModal from './components/FirebaseConfigModal';
 
+import { cloudSyncService } from './services/cloudSyncService';
 import { storageService } from './services/storageService';
 import { calculateGlobalKPIs } from './services/kpiCalculator';
+import { notificationService } from './services/notificationService';
 
 export default function App() {
   const [theme, setTheme] = useState('dark');
-  const [activeTab, setActiveTab] = useState('equipments'); // Default to equipments view when starting fresh
+  const [activeTab, setActiveTab] = useState('equipments');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Main State
+  // Main Real-Time Cloud State
   const [equipments, setEquipments] = useState([]);
   const [maintenances, setMaintenances] = useState([]);
 
@@ -32,15 +35,25 @@ export default function App() {
   const [editingMaintenance, setEditingMaintenance] = useState(null);
   const [defaultEquipmentIdForOS, setDefaultEquipmentIdForOS] = useState('');
 
-  // Load initial data (cleared or saved)
+  const [isFirebaseConfigOpen, setIsFirebaseConfigOpen] = useState(false);
+
+  // Subscribe to Real-Time Cloud Listeners (Firestore onSnapshot)
   useEffect(() => {
-    const eqList = storageService.getEquipments();
-    const maintList = storageService.getMaintenances();
-    setEquipments(eqList);
-    setMaintenances(maintList);
+    const unsubscribeEq = cloudSyncService.subscribeEquipments((data) => {
+      setEquipments([...data]);
+    });
+
+    const unsubscribeMaint = cloudSyncService.subscribeMaintenances((data) => {
+      setMaintenances([...data]);
+    });
+
+    return () => {
+      unsubscribeEq();
+      unsubscribeMaint();
+    };
   }, []);
 
-  // Sync theme attribute with document element
+  // Sync theme attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
@@ -49,42 +62,49 @@ export default function App() {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const handleClearAllData = () => {
-    if (window.confirm('Deseja zerar a memória do sistema (excluir todos os equipamentos e manutenções cadastrados)?')) {
-      const { equipments: newEqs, maintenances: newMaints } = storageService.clearAllData();
-      setEquipments([...newEqs]);
-      setMaintenances([...newMaints]);
+  const handleClearAllData = async () => {
+    if (window.confirm('Deseja zerar a base de dados (excluir todos os equipamentos e manutenções na nuvem e localmente)?')) {
+      await cloudSyncService.clearAllCloudData();
+      setEquipments([]);
+      setMaintenances([]);
     }
   };
 
-  const handleLoadDemoData = () => {
-    if (window.confirm('Deseja carregar os dados de exemplo demonstrativos?')) {
-      const { equipments: newEqs, maintenances: newMaints } = storageService.loadDemoData();
-      setEquipments([...newEqs]);
-      setMaintenances([...newMaints]);
+  const handleLoadDemoData = async () => {
+    if (window.confirm('Deseja carregar os dados de exemplo demonstrativos na nuvem?')) {
+      const { equipments: demoEqs, maintenances: demoMaints } = storageService.loadDemoData();
+      for (const eq of demoEqs) {
+        await cloudSyncService.addOrUpdateEquipment(eq);
+      }
+      for (const mn of demoMaints) {
+        await cloudSyncService.addOrUpdateMaintenance(mn);
+      }
     }
   };
 
   // KPI calculations
   const kpis = calculateGlobalKPIs(equipments, maintenances);
 
-  // Handlers for Equipment CRUD
-  const handleSaveEquipment = (data) => {
-    if (data.id) {
-      const updated = storageService.updateEquipment(data);
-      if (updated) {
-        setEquipments(prev => prev.map(e => e.id === updated.id ? updated : e));
+  // Check for critical alerts and notify via Push
+  useEffect(() => {
+    if (kpis.activeAlerts.length > 0) {
+      const firstCritical = kpis.activeAlerts.find(a => a.alert.status === 'CRITICAL');
+      if (firstCritical) {
+        notificationService.triggerPreventiveAlert(
+          `${firstCritical.equipment.marca} ${firstCritical.equipment.modelo}`,
+          firstCritical.alert.message
+        );
       }
-    } else {
-      const created = storageService.addEquipment(data);
-      setEquipments(prev => [created, ...prev]);
     }
+  }, [kpis.activeAlerts.length]);
+
+  // Real-Time Handlers for Equipment CRUD
+  const handleSaveEquipment = async (data) => {
+    await cloudSyncService.addOrUpdateEquipment(data);
   };
 
-  const handleDeleteEquipment = (id) => {
-    storageService.deleteEquipment(id);
-    setEquipments(prev => prev.filter(e => e.id !== id));
-    setMaintenances(prev => prev.filter(m => m.equipamentoId !== id));
+  const handleDeleteEquipment = async (id) => {
+    await cloudSyncService.deleteEquipment(id);
   };
 
   const handleOpenEditEquipment = (eq) => {
@@ -102,34 +122,21 @@ export default function App() {
     setIsDetailModalOpen(true);
   };
 
-  // Handlers for Maintenance CRUD
-  const handleSaveMaintenance = (data) => {
-    if (data.id) {
-      const updated = storageService.updateMaintenance(data);
-      if (updated) {
-        setMaintenances(prev => prev.map(m => m.id === updated.id ? updated : m));
-      }
-    } else {
-      const created = storageService.addMaintenance(data);
-      setMaintenances(prev => [created, ...prev]);
-    }
-    // Refresh equipments in case horimeter was updated
-    setEquipments(storageService.getEquipments());
+  // Real-Time Handlers for Maintenance CRUD
+  const handleSaveMaintenance = async (data) => {
+    await cloudSyncService.addOrUpdateMaintenance(data);
   };
 
-  const handleDeleteMaintenance = (id) => {
-    if (window.confirm('Tem certeza que deseja excluir esta Ordem de Serviço?')) {
-      storageService.deleteMaintenance(id);
-      setMaintenances(prev => prev.filter(m => m.id !== id));
+  const handleDeleteMaintenance = async (id) => {
+    if (window.confirm('Tem certeza que deseja excluir esta Ordem de Serviço da nuvem?')) {
+      await cloudSyncService.deleteMaintenance(id);
     }
   };
 
-  const handleUpdateOSStatus = (id, newStatus) => {
+  const handleUpdateOSStatus = async (id, newStatus) => {
     const maint = maintenances.find(m => m.id === id);
     if (maint) {
-      const updated = { ...maint, statusOS: newStatus };
-      storageService.updateMaintenance(updated);
-      setMaintenances(prev => prev.map(m => m.id === id ? updated : m));
+      await cloudSyncService.addOrUpdateMaintenance({ ...maint, statusOS: newStatus });
     }
   };
 
@@ -160,6 +167,7 @@ export default function App() {
         onOpenNewMaintenance={() => handleOpenNewOS()}
         onClearAllData={handleClearAllData}
         onLoadDemoData={handleLoadDemoData}
+        onOpenFirebaseConfig={() => setIsFirebaseConfigOpen(true)}
       />
 
       {/* Main View Area */}
@@ -223,7 +231,7 @@ export default function App() {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid var(--border-color)', padding: '16px 24px', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        TR Heavy Ops — Sistema Integrado de Gestão de Manutenção de Máquinas Pesadas | NR-12 & NR-19 Compliant
+        TR Heavy Ops — Sistema Integrado de Gestão de Manutenção em Nuvem Real-Time | PWA Mobile & NR-12/19 Compliant
       </footer>
 
       {/* Modals */}
@@ -249,6 +257,11 @@ export default function App() {
         isOpen={isMaintenanceFormOpen}
         onClose={() => setIsMaintenanceFormOpen(false)}
         onSave={handleSaveMaintenance}
+      />
+
+      <FirebaseConfigModal
+        isOpen={isFirebaseConfigOpen}
+        onClose={() => setIsFirebaseConfigOpen(false)}
       />
 
     </div>
