@@ -57,7 +57,7 @@ export default function Header({
         setDeferredPrompt(null);
       }
     } else {
-      alert('Para instalar no iOS/Android, abra o menu do navegador no celular e selecione "Adicionar à Tela Inicial".');
+      alert('Para instalar no iOS (iPhone/iPad): toque no ícone de Compartilhar no Safari e selecione "Adicionar à Tela de Início".');
     }
   };
 
@@ -67,180 +67,231 @@ export default function Header({
   };
 
   return (
-    <header className="glass-panel" style={{ borderRadius: 0, borderTop: 0, borderLeft: 0, borderRight: 0, padding: '16px 24px', sticky: 'top', top: 0, zIndex: 100 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-        
-        {/* Brand & Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            background: 'var(--gradient-amber)',
-            padding: '10px',
-            borderRadius: 'var(--radius-md)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: 'var(--shadow-amber)'
-          }}>
-            <Wrench size={24} color="#0f172a" />
+    <>
+      <header className="glass-panel" style={{ borderRadius: 0, borderTop: 0, borderLeft: 0, borderRight: 0, padding: '14px 16px', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          
+          {/* Brand & Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              background: 'var(--gradient-amber)',
+              padding: '8px',
+              borderRadius: 'var(--radius-md)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: 'var(--shadow-amber)'
+            }}>
+              <Wrench size={22} color="#0f172a" />
+            </div>
+            <div>
+              <h1 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                TR Heavy Ops
+                <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '2px 6px', background: isCloudActive ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)', color: isCloudActive ? 'var(--color-success)' : 'var(--color-amber)', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                  <Cloud size={10} /> {isCloudActive ? 'NUVEM REAL-TIME' : 'NUVEM DISPONÍVEL'}
+                </span>
+              </h1>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
+                Manutenção em Tempo Real | iOS & PWA Mobile
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              TR Heavy Ops
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 6px', background: isCloudActive ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)', color: isCloudActive ? 'var(--color-success)' : 'var(--color-amber)', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <Cloud size={12} /> {isCloudActive ? 'NUVEM REAL-TIME' : 'NUVEM DISPONÍVEL'}
-              </span>
-            </h1>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
-              Sincronização em Tempo Real | PWA Mobile & Notificações
-            </p>
+
+          {/* Action Buttons & Cloud Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <button className="btn btn-primary" onClick={onOpenNewMaintenance} style={{ height: '38px', padding: '0 12px', fontSize: '0.82rem' }}>
+              <Plus size={16} />
+              <span>Nova OS</span>
+            </button>
+            
+            <button className="btn btn-secondary" onClick={onOpenNewEquipment} style={{ height: '38px', padding: '0 12px', fontSize: '0.82rem' }}>
+              <Plus size={16} />
+              <span>Novo Eq.</span>
+            </button>
+
+            {/* Firebase Cloud Config Button */}
+            <button 
+              className="btn btn-secondary btn-icon" 
+              title="Configuração da Nuvem Firebase" 
+              onClick={onOpenFirebaseConfig}
+              style={{ height: '38px', width: '38px', minWidth: '38px', color: isCloudActive ? 'var(--color-success)' : 'var(--color-warning)' }}
+            >
+              <Cloud size={16} />
+            </button>
+
+            {/* Push Notifications Toggle */}
+            <button 
+              className="btn btn-secondary btn-icon" 
+              title={notificationsEnabled ? "Notificações no Celular Ativadas" : "Ativar Notificações no Celular"} 
+              onClick={handleToggleNotifications}
+              style={{ height: '38px', width: '38px', minWidth: '38px', color: notificationsEnabled ? 'var(--color-amber)' : 'inherit' }}
+            >
+              <Bell size={16} />
+            </button>
+
+            {/* PWA Mobile Install Button */}
+            <button 
+              className="btn btn-secondary btn-icon" 
+              title="Instalar como App no iPhone / Android" 
+              onClick={handleInstallPWA}
+              style={{ height: '38px', width: '38px', minWidth: '38px' }}
+            >
+              <Smartphone size={16} />
+            </button>
+
+            {/* Theme Toggle */}
+            <button 
+              className="btn btn-secondary btn-icon" 
+              title="Alternar Tema Claro/Escuro" 
+              onClick={toggleTheme}
+              style={{ height: '38px', width: '38px', minWidth: '38px' }}
+            >
+              {theme === 'dark' ? <Sun size={16} color="var(--color-amber)" /> : <Moon size={16} />}
+            </button>
+
+            {/* Clear & Demo Controls */}
+            <button 
+              className="btn btn-secondary btn-icon" 
+              title="Zerar memória do sistema" 
+              onClick={onClearAllData}
+              style={{ height: '38px', width: '38px', minWidth: '38px', color: 'var(--color-danger)' }}
+            >
+              <Trash2 size={16} />
+            </button>
+
+            <button 
+              className="btn btn-secondary btn-icon" 
+              title="Carregar dados de exemplo" 
+              onClick={onLoadDemoData}
+              style={{ height: '38px', width: '38px', minWidth: '38px' }}
+            >
+              <Database size={16} />
+            </button>
           </div>
         </div>
 
         {/* Global Search Bar */}
-        <div style={{ flex: '1 1 220px', maxWidth: '340px', position: 'relative' }}>
+        <div style={{ marginTop: '12px', position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             type="text"
             className="form-input"
-            style={{ paddingLeft: '36px', height: '40px', fontSize: '0.85rem' }}
+            style={{ paddingLeft: '36px', height: '38px', fontSize: '16px' }}
             placeholder="Buscar por tag, número de série, marca ou modelo..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
-        {/* Action Buttons & Cloud Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <button className="btn btn-primary" onClick={onOpenNewMaintenance} style={{ height: '40px' }}>
-            <Plus size={18} />
-            <span>Nova OS</span>
-          </button>
-          
-          <button className="btn btn-secondary" onClick={onOpenNewEquipment} style={{ height: '40px' }}>
-            <Plus size={18} />
-            <span>Novo Equipamento</span>
-          </button>
-
-          {/* Firebase Cloud Config Button */}
-          <button 
-            className={`btn btn-secondary btn-icon`} 
-            title="Configuração da Nuvem Firebase" 
-            onClick={onOpenFirebaseConfig}
-            style={{ height: '40px', width: '40px', color: isCloudActive ? 'var(--color-success)' : 'var(--color-warning)' }}
+        {/* Main Desktop Tab Navigation */}
+        <nav style={{ display: 'flex', gap: '6px', marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '10px', overflowX: 'auto' }}>
+          <button
+            className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <Cloud size={18} />
+            <BarChart2 size={15} />
+            <span>Dashboard & KPIs</span>
           </button>
 
-          {/* Push Notifications Toggle */}
-          <button 
-            className="btn btn-secondary btn-icon" 
-            title={notificationsEnabled ? "Notificações no Celular Ativadas" : "Ativar Notificações no Celular"} 
-            onClick={handleToggleNotifications}
-            style={{ height: '40px', width: '40px', color: notificationsEnabled ? 'var(--color-amber)' : 'inherit' }}
+          <button
+            className={`tab-btn ${activeTab === 'equipments' ? 'active' : ''}`}
+            onClick={() => setActiveTab('equipments')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <Bell size={18} />
+            <Truck size={15} />
+            <span>Frota de Equipamentos</span>
           </button>
 
-          {/* PWA Mobile Install Button */}
-          <button 
-            className="btn btn-secondary btn-icon" 
-            title="Instalar como App de Celular (PWA)" 
-            onClick={handleInstallPWA}
-            style={{ height: '40px', width: '40px' }}
+          <button
+            className={`tab-btn ${activeTab === 'maintenances' ? 'active' : ''}`}
+            onClick={() => setActiveTab('maintenances')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <Smartphone size={18} />
+            <Wrench size={15} />
+            <span>Ordens de Serviço (OS)</span>
           </button>
 
-          {/* Theme Toggle */}
-          <button 
-            className="btn btn-secondary btn-icon" 
-            title="Alternar Tema Claro/Escuro" 
-            onClick={toggleTheme}
-            style={{ height: '40px', width: '40px' }}
+          <button
+            className={`tab-btn ${activeTab === 'preventive' ? 'active' : ''}`}
+            onClick={() => setActiveTab('preventive')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}
           >
-            {theme === 'dark' ? <Sun size={18} color="var(--color-amber)" /> : <Moon size={18} />}
+            <AlertTriangle size={15} color={activeAlertsCount > 0 ? 'var(--color-warning)' : 'currentColor'} />
+            <span>Manutenção Preventiva</span>
+            {activeAlertsCount > 0 && (
+              <span style={{
+                background: 'var(--color-danger)',
+                color: '#fff',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                padding: '1px 5px',
+                borderRadius: '999px'
+              }}>
+                {activeAlertsCount}
+              </span>
+            )}
           </button>
 
-          {/* Clear & Demo Controls */}
-          <button 
-            className="btn btn-secondary btn-icon" 
-            title="Zerar memória do sistema (Limpar tudo)" 
-            onClick={onClearAllData}
-            style={{ height: '40px', width: '40px', color: 'var(--color-danger)' }}
+          <button
+            className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
+            onClick={() => setActiveTab('reports')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <Trash2 size={18} />
+            <FileText size={15} />
+            <span>Relatórios & Exportação</span>
           </button>
+        </nav>
+      </header>
 
-          <button 
-            className="btn btn-secondary btn-icon" 
-            title="Carregar dados de exemplo demonstrativos" 
-            onClick={onLoadDemoData}
-            style={{ height: '40px', width: '40px' }}
-          >
-            <Database size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* Main Tab Navigation */}
-      <nav style={{ display: 'flex', gap: '8px', marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', overflowX: 'auto' }}>
-        <button
-          className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+      {/* iOS Sticky Mobile Bottom Bar for 1-Thumb Navigation on Smartphones */}
+      <div className="mobile-bottom-bar">
+        <button 
+          className={`mobile-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <BarChart2 size={16} />
-          <span>Dashboard & KPIs</span>
+          <BarChart2 size={20} />
+          <span>KPIs</span>
         </button>
 
-        <button
-          className={`tab-btn ${activeTab === 'equipments' ? 'active' : ''}`}
+        <button 
+          className={`mobile-nav-item ${activeTab === 'equipments' ? 'active' : ''}`}
           onClick={() => setActiveTab('equipments')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <Truck size={16} />
-          <span>Frota de Equipamentos</span>
+          <Truck size={20} />
+          <span>Frota</span>
         </button>
 
-        <button
-          className={`tab-btn ${activeTab === 'maintenances' ? 'active' : ''}`}
+        <button 
+          className={`mobile-nav-item ${activeTab === 'maintenances' ? 'active' : ''}`}
           onClick={() => setActiveTab('maintenances')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <Wrench size={16} />
-          <span>Ordens de Serviço (OS)</span>
+          <Wrench size={20} />
+          <span>OS</span>
         </button>
 
-        <button
-          className={`tab-btn ${activeTab === 'preventive' ? 'active' : ''}`}
+        <button 
+          className={`mobile-nav-item ${activeTab === 'preventive' ? 'active' : ''}`}
           onClick={() => setActiveTab('preventive')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}
+          style={{ position: 'relative' }}
         >
-          <AlertTriangle size={16} color={activeAlertsCount > 0 ? 'var(--color-warning)' : 'currentColor'} />
-          <span>Manutenção Preventiva</span>
+          <AlertTriangle size={20} color={activeAlertsCount > 0 ? 'var(--color-warning)' : 'currentColor'} />
+          <span>Alertas</span>
           {activeAlertsCount > 0 && (
-            <span style={{
-              background: 'var(--color-danger)',
-              color: '#fff',
-              fontSize: '0.7rem',
-              fontWeight: 700,
-              padding: '1px 6px',
-              borderRadius: '999px'
-            }}>
+            <span style={{ position: 'absolute', top: '4px', right: '12px', background: 'var(--color-danger)', color: '#fff', fontSize: '0.6rem', padding: '0 4px', borderRadius: '999px' }}>
               {activeAlertsCount}
             </span>
           )}
         </button>
 
-        <button
-          className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
+        <button 
+          className={`mobile-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
           onClick={() => setActiveTab('reports')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <FileText size={16} />
-          <span>Relatórios & Exportação</span>
+          <FileText size={20} />
+          <span>Relatórios</span>
         </button>
-      </nav>
-    </header>
+      </div>
+    </>
   );
 }
