@@ -5,7 +5,6 @@ import {
   FileText, 
   AlertTriangle, 
   Plus, 
-  Search, 
   Trash2,
   Database,
   Cloud,
@@ -18,8 +17,6 @@ import { notificationService } from '../services/notificationService';
 export default function Header({
   activeTab,
   setActiveTab,
-  searchTerm,
-  setSearchTerm,
   activeAlertsCount,
   onOpenNewMaintenance,
   onClearAllData,
@@ -115,19 +112,6 @@ export default function Header({
               <Database size={16} />
             </button>
           </div>
-        </div>
-
-        {/* Global Search Bar */}
-        <div style={{ marginTop: '12px', position: 'relative' }}>
-          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          <input
-            type="text"
-            className="form-input"
-            style={{ paddingLeft: '36px', height: '38px', fontSize: '16px' }}
-            placeholder="Buscar por tag, número de série, marca ou modelo..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
         </div>
 
         {/* Main Desktop Tab Navigation */}

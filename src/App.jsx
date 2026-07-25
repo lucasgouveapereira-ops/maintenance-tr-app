@@ -153,8 +153,6 @@ export default function App() {
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
         activeAlertsCount={kpis.activeAlerts.length}
         onOpenNewMaintenance={() => handleOpenNewOS()}
         onClearAllData={handleClearAllData}

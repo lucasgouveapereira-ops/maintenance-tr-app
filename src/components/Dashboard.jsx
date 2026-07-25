@@ -119,18 +119,11 @@ export default function Dashboard({ kpis, equipments, maintenances, onSelectEqui
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* Page Title Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Visão Geral da Frota & Indicadores Operacionais</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            Monitoramento em tempo real de confiabilidade, custos de manutenção e conformidade técnica.
-          </p>
-        </div>
-
-        <button className="btn btn-outline-amber" onClick={onNavigateToPreventive}>
-          <AlertTriangle size={16} />
-          <span>Ver Central de Alertas ({kpis.activeAlerts.length})</span>
-        </button>
+      <div>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Visão Geral da Frota & Indicadores Operacionais</h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          Monitoramento em tempo real de confiabilidade, custos de manutenção e conformidade técnica.
+        </p>
       </div>
 
       {/* KPI Cards Grid */}
@@ -173,7 +166,7 @@ export default function Dashboard({ kpis, equipments, maintenances, onSelectEqui
         {/* Card 3: Downtime Acumulado */}
         <div className="glass-panel" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>INDISPONIBILIDADE (DOWNTIME)</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)' }}>DOWNTIME</span>
             <div style={{ padding: '8px', background: 'rgba(239, 68, 68, 0.15)', borderRadius: 'var(--radius-sm)', color: '#ef4444' }}>
               <Clock size={20} />
             </div>
@@ -221,26 +214,26 @@ export default function Dashboard({ kpis, equipments, maintenances, onSelectEqui
       </div>
 
       {/* Analytics Section: Charts Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         
         {/* Chart 1: Ranking de Quebras & Downtime */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <BarChart2 size={18} color="var(--color-amber)" />
-            Ranking dos Equipamentos Críticos (Quebras vs Downtime)
+        <div className="glass-panel" style={{ padding: '16px' }}>
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <BarChart2 size={16} color="var(--color-amber)" />
+            Ranking Críticos (Quebras vs Downtime)
           </h3>
-          <div style={{ height: '280px', position: 'relative' }}>
+          <div style={{ height: '200px', position: 'relative' }}>
             <Bar data={rankingData} options={chartOptions} />
           </div>
         </div>
 
         {/* Chart 2: Custos por Tipo (Preventiva vs Corretiva) */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <DollarSign size={18} color="#10b981" />
-            Distribuição de Custos (Preventiva vs Corretiva)
+        <div className="glass-panel" style={{ padding: '16px' }}>
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <DollarSign size={16} color="#10b981" />
+            Custos (Preventiva vs Corretiva)
           </h3>
-          <div style={{ height: '280px', position: 'relative' }}>
+          <div style={{ height: '200px', position: 'relative' }}>
             <Bar data={costBreakdownData} options={chartOptions} />
           </div>
         </div>
