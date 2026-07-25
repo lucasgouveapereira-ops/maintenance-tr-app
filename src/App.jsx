@@ -16,7 +16,6 @@ import { calculateGlobalKPIs } from './services/kpiCalculator';
 import { notificationService } from './services/notificationService';
 
 export default function App() {
-  const [theme, setTheme] = useState('dark');
   const [activeTab, setActiveTab] = useState('equipments');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -53,14 +52,10 @@ export default function App() {
     };
   }, []);
 
-  // Sync theme attribute
+  // Lock theme permanently to dark mode
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
-  };
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
 
   const handleClearAllData = async () => {
     if (window.confirm('Deseja zerar a base de dados (excluir todos os equipamentos e manutenções na nuvem e localmente)?')) {
@@ -161,9 +156,6 @@ export default function App() {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         activeAlertsCount={kpis.activeAlerts.length}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        onOpenNewEquipment={handleOpenNewEquipment}
         onOpenNewMaintenance={() => handleOpenNewOS()}
         onClearAllData={handleClearAllData}
         onLoadDemoData={handleLoadDemoData}

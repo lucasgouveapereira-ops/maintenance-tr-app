@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Wrench, 
   Truck, 
@@ -6,13 +6,10 @@ import {
   AlertTriangle, 
   Plus, 
   Search, 
-  Sun, 
-  Moon, 
   Trash2,
   Database,
   Cloud,
   Bell,
-  Smartphone,
   BarChart2
 } from 'lucide-react';
 import { isFirebaseConfigured } from '../services/firebase';
@@ -24,42 +21,16 @@ export default function Header({
   searchTerm,
   setSearchTerm,
   activeAlertsCount,
-  theme,
-  toggleTheme,
-  onOpenNewEquipment,
   onOpenNewMaintenance,
   onClearAllData,
   onLoadDemoData,
   onOpenFirebaseConfig
 }) {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     notificationService.getPermissionStatus() === 'granted'
   );
 
   const isCloudActive = isFirebaseConfigured();
-
-  // Listen for PWA Install Prompt
-  useEffect(() => {
-    const handleBeforeInstall = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-  }, []);
-
-  const handleInstallPWA = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
-      if (choiceResult.outcome === 'accepted') {
-        setDeferredPrompt(null);
-      }
-    } else {
-      alert('Para instalar no iOS (iPhone/iPad): toque no ícone de Compartilhar no Safari e selecione "Adicionar à Tela de Início".');
-    }
-  };
 
   const handleToggleNotifications = async () => {
     const granted = await notificationService.requestPermission();
@@ -98,15 +69,11 @@ export default function Header({
           </div>
 
           {/* Action Buttons & Cloud Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            <button className="btn btn-primary" onClick={onOpenNewMaintenance} style={{ height: '38px', padding: '0 12px', fontSize: '0.82rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {/* Nova OS Button */}
+            <button className="btn btn-primary" onClick={onOpenNewMaintenance} style={{ height: '38px', padding: '0 14px', fontSize: '0.85rem' }}>
               <Plus size={16} />
               <span>Nova OS</span>
-            </button>
-            
-            <button className="btn btn-secondary" onClick={onOpenNewEquipment} style={{ height: '38px', padding: '0 12px', fontSize: '0.82rem' }}>
-              <Plus size={16} />
-              <span>Novo Eq.</span>
             </button>
 
             {/* Firebase Cloud Config Button */}
@@ -127,26 +94,6 @@ export default function Header({
               style={{ height: '38px', width: '38px', minWidth: '38px', color: notificationsEnabled ? 'var(--color-amber)' : 'inherit' }}
             >
               <Bell size={16} />
-            </button>
-
-            {/* PWA Mobile Install Button */}
-            <button 
-              className="btn btn-secondary btn-icon" 
-              title="Instalar como App no iPhone / Android" 
-              onClick={handleInstallPWA}
-              style={{ height: '38px', width: '38px', minWidth: '38px' }}
-            >
-              <Smartphone size={16} />
-            </button>
-
-            {/* Theme Toggle */}
-            <button 
-              className="btn btn-secondary btn-icon" 
-              title="Alternar Tema Claro/Escuro" 
-              onClick={toggleTheme}
-              style={{ height: '38px', width: '38px', minWidth: '38px' }}
-            >
-              {theme === 'dark' ? <Sun size={16} color="var(--color-amber)" /> : <Moon size={16} />}
             </button>
 
             {/* Clear & Demo Controls */}
