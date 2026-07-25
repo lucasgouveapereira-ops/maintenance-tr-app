@@ -9,7 +9,9 @@ import {
   Database,
   Cloud,
   Bell,
-  BarChart2
+  BarChart2,
+  Settings,
+  X
 } from 'lucide-react';
 import { isFirebaseConfigured } from '../services/firebase';
 import { notificationService } from '../services/notificationService';
@@ -23,6 +25,7 @@ export default function Header({
   onLoadDemoData,
   onOpenFirebaseConfig
 }) {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     notificationService.getPermissionStatus() === 'granted'
   );
@@ -36,11 +39,11 @@ export default function Header({
 
   return (
     <>
-      <header className="glass-panel" style={{ borderRadius: 0, borderTop: 0, borderLeft: 0, borderRight: 0, padding: '14px 16px', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+      <header className="glass-panel" style={{ borderRadius: 0, borderTop: 0, borderLeft: 0, borderRight: 0, padding: '12px 16px', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', width: '100%' }}>
           
           {/* Brand & Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             <div style={{
               background: 'var(--gradient-amber)',
               padding: '8px',
@@ -52,66 +55,40 @@ export default function Header({
             }}>
               <Wrench size={22} color="#0f172a" />
             </div>
-            <div>
-              <h1 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                TR Heavy Ops
-                <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '2px 6px', background: isCloudActive ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)', color: isCloudActive ? 'var(--color-success)' : 'var(--color-amber)', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                  <Cloud size={10} /> {isCloudActive ? 'NUVEM REAL-TIME' : 'NUVEM DISPONÍVEL'}
-                </span>
-              </h1>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
-                Manutenção em Tempo Real | iOS & PWA Mobile
-              </p>
-            </div>
+            <h1 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
+              TR Heavy Ops
+            </h1>
           </div>
 
-          {/* Action Buttons & Cloud Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            {/* Nova OS Button */}
-            <button className="btn btn-primary" onClick={onOpenNewMaintenance} style={{ height: '38px', padding: '0 14px', fontSize: '0.85rem' }}>
-              <Plus size={16} />
-              <span>Nova OS</span>
-            </button>
+          {/* "+ Nova OS" Button expanding full lateral width */}
+          <button 
+            className="btn btn-primary" 
+            onClick={onOpenNewMaintenance} 
+            style={{ 
+              flex: 1, 
+              height: '42px', 
+              fontSize: '0.92rem', 
+              fontWeight: 800,
+              justifyContent: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: 'var(--shadow-amber)'
+            }}
+          >
+            <Plus size={20} />
+            <span>+ Nova OS</span>
+          </button>
 
-            {/* Firebase Cloud Config Button */}
-            <button 
-              className="btn btn-secondary btn-icon" 
-              title="Configuração da Nuvem Firebase" 
-              onClick={onOpenFirebaseConfig}
-              style={{ height: '38px', width: '38px', minWidth: '38px', color: isCloudActive ? 'var(--color-success)' : 'var(--color-warning)' }}
-            >
-              <Cloud size={16} />
-            </button>
-
-            {/* Push Notifications Toggle */}
-            <button 
-              className="btn btn-secondary btn-icon" 
-              title={notificationsEnabled ? "Notificações no Celular Ativadas" : "Ativar Notificações no Celular"} 
-              onClick={handleToggleNotifications}
-              style={{ height: '38px', width: '38px', minWidth: '38px', color: notificationsEnabled ? 'var(--color-amber)' : 'inherit' }}
-            >
-              <Bell size={16} />
-            </button>
-
-            {/* Clear & Demo Controls */}
-            <button 
-              className="btn btn-secondary btn-icon" 
-              title="Zerar memória do sistema" 
-              onClick={onClearAllData}
-              style={{ height: '38px', width: '38px', minWidth: '38px', color: 'var(--color-danger)' }}
-            >
-              <Trash2 size={16} />
-            </button>
-
-            <button 
-              className="btn btn-secondary btn-icon" 
-              title="Carregar dados de exemplo" 
-              onClick={onLoadDemoData}
-              style={{ height: '38px', width: '38px', minWidth: '38px' }}
-            >
-              <Database size={16} />
-            </button>
-          </div>
+          {/* Settings Gear Button */}
+          <button 
+            className="btn btn-secondary btn-icon" 
+            title="Configurações do Sistema" 
+            onClick={() => setIsSettingsOpen(true)}
+            style={{ height: '42px', width: '42px', minWidth: '42px', flexShrink: 0 }}
+          >
+            <Settings size={20} />
+          </button>
         </div>
 
         {/* Main Desktop Tab Navigation */}
@@ -174,6 +151,126 @@ export default function Header({
           </button>
         </nav>
       </header>
+
+      {/* Settings Modal (Engrenagem) */}
+      {isSettingsOpen && (
+        <div className="modal-overlay" onClick={() => setIsSettingsOpen(false)}>
+          <div 
+            className="modal-content glass-panel" 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ maxWidth: '440px', width: '100%', padding: '24px' }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Settings size={22} color="var(--color-amber)" />
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Configurações do Sistema</h3>
+              </div>
+              <button 
+                className="btn btn-secondary btn-icon" 
+                onClick={() => setIsSettingsOpen(false)}
+                style={{ width: '32px', height: '32px' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Actions List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              
+              {/* Option 1: Cloud Sync Firebase */}
+              <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem' }}>
+                    <Cloud size={18} color={isCloudActive ? 'var(--color-success)' : 'var(--color-warning)'} />
+                    Sincronização na Nuvem
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                    {isCloudActive ? 'Conectado em tempo real ao Firebase' : 'Configurar chave do Firebase'}
+                  </p>
+                </div>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+                  onClick={() => {
+                    setIsSettingsOpen(false);
+                    onOpenFirebaseConfig();
+                  }}
+                >
+                  Configurar
+                </button>
+              </div>
+
+              {/* Option 2: Mobile Push Notifications */}
+              <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem' }}>
+                    <Bell size={18} color={notificationsEnabled ? 'var(--color-amber)' : 'var(--text-muted)'} />
+                    Notificações no Celular
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                    {notificationsEnabled ? 'Alertas push ativados' : 'Receber alertas de preventiva'}
+                  </p>
+                </div>
+                <button 
+                  className={`btn ${notificationsEnabled ? 'btn-secondary' : 'btn-primary'}`}
+                  style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+                  onClick={handleToggleNotifications}
+                >
+                  {notificationsEnabled ? 'Ativado' : 'Ativar'}
+                </button>
+              </div>
+
+              {/* Option 3: Load Demo Data */}
+              <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem' }}>
+                    <Database size={18} color="#3b82f6" />
+                    Base Exemplo
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                    Carregar dados demonstrativos
+                  </p>
+                </div>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+                  onClick={() => {
+                    setIsSettingsOpen(false);
+                    onLoadDemoData();
+                  }}
+                >
+                  Carregar
+                </button>
+              </div>
+
+              {/* Option 4: Clear Base Data */}
+              <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--color-danger-bg)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-danger)' }}>
+                    <Trash2 size={18} color="var(--color-danger)" />
+                    Zerar Memória
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                    Excluir todos os registros da nuvem
+                  </p>
+                </div>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ fontSize: '0.8rem', padding: '6px 12px', color: 'var(--color-danger)', borderColor: 'rgba(239,68,68,0.4)' }}
+                  onClick={() => {
+                    setIsSettingsOpen(false);
+                    onClearAllData();
+                  }}
+                >
+                  Zerar Tudo
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* iOS Sticky Mobile Bottom Bar for 1-Thumb Navigation on Smartphones */}
       <div className="mobile-bottom-bar">
