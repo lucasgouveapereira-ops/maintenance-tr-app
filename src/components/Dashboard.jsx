@@ -214,7 +214,7 @@ export default function Dashboard({ kpis, equipments, maintenances, onSelectEqui
       </div>
 
       {/* Analytics Section: Charts Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
         
         {/* Chart 1: Ranking de Quebras & Downtime */}
         <div className="glass-panel" style={{ padding: '16px' }}>
