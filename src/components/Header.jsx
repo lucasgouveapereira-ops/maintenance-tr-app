@@ -52,21 +52,23 @@ export default function Header({
           
           {/* Brand & Active Role Badge */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              background: 'var(--gradient-amber)',
-              padding: '8px',
-              borderRadius: 'var(--radius-md)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: 'var(--shadow-amber)'
-            }}>
-              <Wrench size={20} color="#0f172a" />
-            </div>
+            <img 
+              src="/app-icon.png" 
+              alt="Tecrochas Logo" 
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: 'var(--radius-sm)',
+                objectFit: 'contain',
+                background: '#ffffff',
+                padding: '2px',
+                boxShadow: 'var(--shadow-sm)'
+              }}
+            />
             
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <h1 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                TR Heavy Ops
+                Tecrochas
               </h1>
 
               {/* Role Badge Trigger */}

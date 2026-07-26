@@ -1,12 +1,18 @@
 {
-  "short_name": "TR Heavy Ops",
-  "name": "TR Heavy Ops — Controle de Manutenção de Equipamentos",
+  "short_name": "Tecrochas",
+  "name": "Tecrochas — Manutenção de Máquinas & Frota",
   "description": "Sistema Integrado de Gestão de Manutenção de Máquinas Pesadas com Sincronização em Nuvem e Alertas NR-12/19",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "type": "image/svg+xml",
-      "sizes": "192x192 512x512",
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
