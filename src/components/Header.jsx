@@ -92,24 +92,16 @@ export default function Header({
         </div>
       </header>
 
-      {/* Settings Modal (Engrenagem) with Fix Scroll */}
+      {/* Settings Modal (Engrenagem) with Mobile Native Touch Scroll */}
       {isSettingsOpen && (
         <div className="modal-overlay" onClick={() => setIsSettingsOpen(false)}>
           <div 
             className="modal-content glass-panel" 
             onClick={(e) => e.stopPropagation()} 
-            style={{ 
-              maxWidth: '460px', 
-              width: '100%', 
-              maxHeight: '90vh',
-              display: 'flex',
-              flexDirection: 'column',
-              padding: '20px',
-              overflow: 'hidden'
-            }}
+            style={{ maxWidth: '460px', width: '100%' }}
           >
             {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', flexShrink: 0 }}>
+            <div className="modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Settings size={22} color="var(--color-amber)" />
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Configurações do Sistema</h3>
@@ -123,15 +115,8 @@ export default function Header({
               </button>
             </div>
 
-            {/* Modal Scrollable Body */}
-            <div style={{ 
-              overflowY: 'auto', 
-              WebkitOverflowScrolling: 'touch',
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '12px', 
-              paddingRight: '4px' 
-            }}>
+            {/* Modal Body with native scroll */}
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               
               {/* Option 1: Cloud Sync Firebase */}
               <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
@@ -227,7 +212,7 @@ export default function Header({
         </div>
       )}
 
-      {/* Sticky Bottom Bar for Navigation across all viewports (KPIs, Frota, OS, Alertas, Relatórios) */}
+      {/* Sticky Bottom Bar for Navigation across all viewports */}
       <div className="mobile-bottom-bar">
         <button 
           className={`mobile-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}

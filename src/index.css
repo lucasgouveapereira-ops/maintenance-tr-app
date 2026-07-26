@@ -314,9 +314,10 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 850px;
-  max-height: 90vh;
-  max-height: 90dvh;
+  max-height: 85vh;
+  max-height: 85dvh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
@@ -328,7 +329,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  sticky: top;
+  position: sticky;
   top: 0;
   background: var(--bg-secondary);
   z-index: 10;
@@ -337,6 +338,9 @@ h1, h2, h3, h4, h5, h6 {
 .modal-body {
   padding: 20px;
   flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(30px + var(--safe-bottom));
 }
 
 .modal-footer {
