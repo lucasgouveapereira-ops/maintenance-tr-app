@@ -139,7 +139,7 @@ export default function MaintenanceFormModal({ maintenance, equipments, defaultE
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content glass-panel" style={{ maxWidth: '800px' }} onClick={(e) => e.stopPropagation()}>
+      <form className="modal-content glass-panel" style={{ maxWidth: '800px' }} onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
         
         {/* Modal Header */}
         <div className="modal-header">
@@ -147,14 +147,13 @@ export default function MaintenanceFormModal({ maintenance, equipments, defaultE
             <Wrench color="var(--color-amber)" />
             {formData.id ? 'Editar Ordem de Serviço (OS)' : 'Nova Ordem de Serviço (OS)'}
           </h3>
-          <button className="btn btn-secondary btn-icon" onClick={onClose}>
+          <button type="button" className="btn btn-secondary btn-icon" onClick={onClose}>
             <X size={18} />
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Modal Body */}
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
             {/* Equipment Selection & Basic Details */}
             <div className="form-row">
@@ -363,9 +362,8 @@ export default function MaintenanceFormModal({ maintenance, equipments, defaultE
               {formData.id ? 'Salvar Alterações' : 'Salvar e Registrar OS'}
             </button>
           </div>
-        </form>
 
-      </div>
+      </form>
     </div>
   );
 }

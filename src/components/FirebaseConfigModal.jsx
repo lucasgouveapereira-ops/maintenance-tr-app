@@ -48,8 +48,8 @@ export default function FirebaseConfigModal({ isOpen, onClose }) {
   const active = isFirebaseConfigured();
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content glass-panel" style={{ maxWidth: '700px' }}>
+    <div className="modal-overlay" onClick={onClose}>
+      <form className="modal-content glass-panel" style={{ maxWidth: '700px' }} onClick={(e) => e.stopPropagation()} onSubmit={handleSave}>
         
         {/* Header */}
         <div className="modal-header">
@@ -57,14 +57,13 @@ export default function FirebaseConfigModal({ isOpen, onClose }) {
             <Cloud color="var(--color-amber)" />
             Configuração da Nuvem Firebase (Sincronização em Tempo Real)
           </h3>
-          <button className="btn btn-secondary btn-icon" onClick={onClose}>
+          <button type="button" className="btn btn-secondary btn-icon" onClick={onClose}>
             <X size={18} />
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSave}>
-          <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Modal Body */}
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             {/* Status Banner */}
             <div style={{ 
@@ -150,9 +149,8 @@ export default function FirebaseConfigModal({ isOpen, onClose }) {
               <span>Salvar & Conectar Nuvem</span>
             </button>
           </div>
-        </form>
 
-      </div>
+      </form>
     </div>
   );
 }

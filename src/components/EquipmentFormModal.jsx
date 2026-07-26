@@ -107,8 +107,8 @@ export default function EquipmentFormModal({ equipment, isOpen, onClose, onSave 
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content glass-panel" style={{ maxWidth: '800px' }}>
+    <div className="modal-overlay" onClick={onClose}>
+      <form className="modal-content glass-panel" style={{ maxWidth: '800px' }} onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
         
         {/* Modal Header */}
         <div className="modal-header">
@@ -116,14 +116,13 @@ export default function EquipmentFormModal({ equipment, isOpen, onClose, onSave 
             <Truck color="var(--color-amber)" />
             {equipment ? 'Editar Cadastro de Equipamento' : 'Cadastrar Novo Equipamento'}
           </h3>
-          <button className="btn btn-secondary btn-icon" onClick={onClose}>
+          <button type="button" className="btn btn-secondary btn-icon" onClick={onClose}>
             <X size={18} />
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div className="modal-body">
+        {/* Modal Body */}
+        <div className="modal-body">
             
             {/* Tabs Header */}
             <div className="tabs-header">
@@ -362,9 +361,8 @@ export default function EquipmentFormModal({ equipment, isOpen, onClose, onSave 
               <span>Salvar Equipamento</span>
             </button>
           </div>
-        </form>
 
-      </div>
+      </form>
     </div>
   );
 }
