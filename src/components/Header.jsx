@@ -43,7 +43,7 @@ export default function Header({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', width: '100%' }}>
           
           {/* Brand & Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               background: 'var(--gradient-amber)',
               padding: '8px',
@@ -60,111 +60,59 @@ export default function Header({
             </h1>
           </div>
 
-          {/* "+ Nova OS" Button expanding full lateral width */}
-          <button 
-            className="btn btn-primary" 
-            onClick={onOpenNewMaintenance} 
-            style={{ 
-              flex: 1, 
-              height: '42px', 
-              fontSize: '0.92rem', 
-              fontWeight: 800,
-              justifyContent: 'center',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              boxShadow: 'var(--shadow-amber)'
-            }}
-          >
-            <Plus size={20} />
-            <span>+ Nova OS</span>
-          </button>
-
-          {/* Settings Gear Button */}
-          <button 
-            className="btn btn-secondary btn-icon" 
-            title="Configurações do Sistema" 
-            onClick={() => setIsSettingsOpen(true)}
-            style={{ height: '42px', width: '42px', minWidth: '42px', flexShrink: 0 }}
-          >
-            <Settings size={20} />
-          </button>
-        </div>
-
-        {/* Main Desktop Tab Navigation */}
-        <nav style={{ display: 'flex', gap: '6px', marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '10px', overflowX: 'auto' }}>
-          <button
-            className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <BarChart2 size={15} />
-            <span>Dashboard & KPIs</span>
-          </button>
-
-          <button
-            className={`tab-btn ${activeTab === 'equipments' ? 'active' : ''}`}
-            onClick={() => setActiveTab('equipments')}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <Truck size={15} />
-            <span>Frota de Equipamentos</span>
-          </button>
-
-          <button
-            className={`tab-btn ${activeTab === 'maintenances' ? 'active' : ''}`}
-            onClick={() => setActiveTab('maintenances')}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <Wrench size={15} />
-            <span>Ordens de Serviço (OS)</span>
-          </button>
-
-          <button
-            className={`tab-btn ${activeTab === 'preventive' ? 'active' : ''}`}
-            onClick={() => setActiveTab('preventive')}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}
-          >
-            <AlertTriangle size={15} color={activeAlertsCount > 0 ? 'var(--color-warning)' : 'currentColor'} />
-            <span>Manutenção Preventiva</span>
-            {activeAlertsCount > 0 && (
-              <span style={{
-                background: 'var(--color-danger)',
-                color: '#fff',
-                fontSize: '0.65rem',
+          {/* Right actions: Nova OS button + Settings Gear */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button 
+              className="btn btn-primary" 
+              onClick={onOpenNewMaintenance} 
+              style={{ 
+                height: '38px', 
+                padding: '0 16px', 
+                fontSize: '0.85rem', 
                 fontWeight: 700,
-                padding: '1px 5px',
-                borderRadius: '999px'
-              }}>
-                {activeAlertsCount}
-              </span>
-            )}
-          </button>
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: 'var(--shadow-amber)'
+              }}
+            >
+              <Plus size={16} />
+              <span>Nova OS</span>
+            </button>
 
-          <button
-            className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
-            onClick={() => setActiveTab('reports')}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <FileText size={15} />
-            <span>Relatórios & Exportação</span>
-          </button>
-        </nav>
+            <button 
+              className="btn btn-secondary btn-icon" 
+              title="Configurações do Sistema" 
+              onClick={() => setIsSettingsOpen(true)}
+              style={{ height: '38px', width: '38px', minWidth: '38px' }}
+            >
+              <Settings size={18} />
+            </button>
+          </div>
+        </div>
       </header>
 
-      {/* Settings Modal (Engrenagem) */}
+      {/* Settings Modal (Engrenagem) with Fix Scroll */}
       {isSettingsOpen && (
         <div className="modal-overlay" onClick={() => setIsSettingsOpen(false)}>
           <div 
             className="modal-content glass-panel" 
             onClick={(e) => e.stopPropagation()} 
-            style={{ maxWidth: '440px', width: '100%', padding: '24px' }}
+            style={{ 
+              maxWidth: '460px', 
+              width: '100%', 
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '20px',
+              overflow: 'hidden'
+            }}
           >
             {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', flexShrink: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Settings size={22} color="var(--color-amber)" />
-                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Configurações do Sistema</h3>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Configurações do Sistema</h3>
               </div>
               <button 
                 className="btn btn-secondary btn-icon" 
@@ -175,8 +123,15 @@ export default function Header({
               </button>
             </div>
 
-            {/* Modal Actions List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Modal Scrollable Body */}
+            <div style={{ 
+              overflowY: 'auto', 
+              WebkitOverflowScrolling: 'touch',
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '12px', 
+              paddingRight: '4px' 
+            }}>
               
               {/* Option 1: Cloud Sync Firebase */}
               <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
@@ -272,7 +227,7 @@ export default function Header({
         </div>
       )}
 
-      {/* iOS Sticky Mobile Bottom Bar for 1-Thumb Navigation on Smartphones */}
+      {/* Sticky Bottom Bar for Navigation across all viewports (KPIs, Frota, OS, Alertas, Relatórios) */}
       <div className="mobile-bottom-bar">
         <button 
           className={`mobile-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
