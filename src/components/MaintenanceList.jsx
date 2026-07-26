@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import { 
   Wrench, 
   Plus, 
-  Filter, 
   Search, 
+  Filter, 
+  FileText, 
   Edit3, 
   Trash2, 
-  CheckCircle, 
-  Clock, 
-  AlertCircle, 
+  AlertCircle,
+  Clock,
   DollarSign,
-  FileText
+  CheckCircle2,
+  AlertTriangle,
+  PlayCircle
 } from 'lucide-react';
-import { MAINTENANCE_TYPES, OS_STATUS } from '../types';
+import { OS_STATUS } from '../types';
+import { USER_ROLES } from '../services/authService';
 
 export default function MaintenanceList({
   maintenances,
@@ -22,135 +25,109 @@ export default function MaintenanceList({
   onOpenNewOS,
   onEditOS,
   onDeleteOS,
-  onUpdateOSStatus
+  onUpdateOSStatus,
+  currentRole
 }) {
   const [selectedType, setSelectedType] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
-  const [selectedEquipmentId, setSelectedEquipmentId] = useState('ALL');
+
+  const isAdmin = currentRole === USER_ROLES.ADMIN;
 
   // Filtered Maintenances
   const filteredMaintenances = maintenances.filter(m => {
     const eq = equipments.find(e => e.id === m.equipamentoId);
-    const eqText = eq ? `${eq.marca} ${eq.modelo} ${eq.numeroInventario}` : '';
-    
+    const eqName = eq ? `${eq.marca} ${eq.modelo} ${eq.numeroInventario}` : '';
+
     const matchesSearch = 
       !searchTerm ||
-      m.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      eqName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       m.itensServicos.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      m.mecanicoResponsavel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      eqText.toLowerCase().includes(searchTerm.toLowerCase());
+      (m.mecanicoResponsavel && m.mecanicoResponsavel.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (m.causaFalhaDiagnostico && m.causaFalhaDiagnostico.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesType = selectedType === 'ALL' || m.tipo === selectedType;
     const matchesStatus = selectedStatus === 'ALL' || m.statusOS === selectedStatus;
-    const matchesEq = selectedEquipmentId === 'ALL' || m.equipamentoId === selectedEquipmentId;
 
-    return matchesSearch && matchesType && matchesStatus && matchesEq;
+    return matchesSearch && matchesType && matchesStatus;
   });
-
-  const totalCost = filteredMaintenances.reduce((acc, m) => acc + (Number(m.custoTotal) || 0), 0);
-  const totalDowntime = filteredMaintenances.reduce((acc, m) => acc + (Number(m.downtimeHoras) || 0), 0);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
-      {/* Header & Filter Card */}
-      <div className="glass-panel" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-          <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Wrench color="var(--color-amber)" />
-              Central de Ordens de Serviço (OS) ({filteredMaintenances.length})
-            </h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Registro de revisões preventivas, reparações corretivas, peças e disponibilidade operacional.
-            </p>
-          </div>
-
-          <button className="btn btn-primary" onClick={() => onOpenNewOS()}>
-            <Plus size={18} />
-            <span>Nova Ordem de Serviço</span>
-          </button>
+      {/* Header Controls */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Wrench color="var(--color-amber)" />
+            Ordens de Serviço (OS) ({maintenances.length})
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+            Registro técnico de intervenções preventivas, corretivas e paralisações da frota.
+          </p>
         </div>
 
-        {/* KPI Mini Summary */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
-          <div style={{ padding: '10px 14px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', fontSize: '0.8rem' }}>
-            <span style={{ color: 'var(--text-muted)' }}>Custo Filtrado</span>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
-              R$ {totalCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-          </div>
-
-          <div style={{ padding: '10px 14px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', fontSize: '0.8rem' }}>
-            <span style={{ color: 'var(--text-muted)' }}>Downtime Filtrado</span>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ef4444' }}>
-              {totalDowntime} horas
-            </div>
-          </div>
-
-          <div style={{ padding: '10px 14px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', fontSize: '0.8rem' }}>
-            <span style={{ color: 'var(--text-muted)' }}>OS Abertas / Em Andamento</span>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f59e0b' }}>
-              {maintenances.filter(m => m.statusOS !== 'Concluída').length} OS
-            </div>
-          </div>
-        </div>
-
-        {/* Filter Dropdowns */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
-          
-          <div className="form-group" style={{ margin: 0 }}>
-            <label className="form-label" style={{ fontSize: '0.75rem' }}>Tipo de Manutenção</label>
-            <select className="form-select" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
-              <option value="ALL">Todos os Tipos</option>
-              <option value="Preventiva">Preventiva</option>
-              <option value="Corretiva">Corretiva</option>
-            </select>
-          </div>
-
-          <div className="form-group" style={{ margin: 0 }}>
-            <label className="form-label" style={{ fontSize: '0.75rem' }}>Status da OS</label>
-            <select className="form-select" value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)}>
-              <option value="ALL">Todos os Status</option>
-              <option value="Aberta">Aberta</option>
-              <option value="Em Andamento">Em Andamento</option>
-              <option value="Concluída">Concluída</option>
-            </select>
-          </div>
-
-          <div className="form-group" style={{ margin: 0 }}>
-            <label className="form-label" style={{ fontSize: '0.75rem' }}>Equipamento</label>
-            <select className="form-select" value={selectedEquipmentId} onChange={e => setSelectedEquipmentId(e.target.value)}>
-              <option value="ALL">Todos os Equipamentos</option>
-              {equipments.map(eq => (
-                <option key={eq.id} value={eq.id}>{eq.marca} {eq.modelo} ({eq.numeroInventario})</option>
-              ))}
-            </select>
-          </div>
-
-        </div>
+        <button className="btn btn-primary" onClick={() => onOpenNewOS()} style={{ height: '38px', padding: '0 16px', fontSize: '0.85rem' }}>
+          <Plus size={16} />
+          <span>Nova Ordem de Serviço</span>
+        </button>
       </div>
 
-      {/* Maintenances Table */}
-      <div className="glass-panel" style={{ overflowX: 'auto' }}>
-        {filteredMaintenances.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <AlertCircle size={40} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-            <h3>Nenhuma ordem de serviço encontrada.</h3>
-          </div>
-        ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+      {/* Filter Bar */}
+      <div className="glass-panel" style={{ padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+        
+        {/* Search */}
+        <div style={{ position: 'relative' }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <input
+            type="text"
+            className="form-input"
+            style={{ paddingLeft: '36px', height: '38px' }}
+            placeholder="Buscar por equipamento, serviço ou mecânico..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* Filter Type */}
+        <select className="form-select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} style={{ height: '38px' }}>
+          <option value="ALL">Todos os Tipos (Preventiva / Corretiva)</option>
+          <option value="Preventiva">Preventiva</option>
+          <option value="Corretiva">Corretiva</option>
+        </select>
+
+        {/* Filter Status */}
+        <select className="form-select" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} style={{ height: '38px' }}>
+          <option value="ALL">Todos os Status da OS</option>
+          <option value="Aberta">Aberta</option>
+          <option value="Em Andamento">Em Andamento</option>
+          <option value="Concluída">Concluída</option>
+        </select>
+
+      </div>
+
+      {/* Empty State */}
+      {filteredMaintenances.length === 0 && (
+        <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+          <AlertCircle size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Nenhuma Ordem de Serviço encontrada</h3>
+          <p style={{ fontSize: '0.85rem', marginTop: '4px' }}>
+            Clique no botão "+ Nova Ordem de Serviço" acima para registrar uma manutenção.
+          </p>
+        </div>
+      )}
+
+      {/* Maintenance Table List */}
+      {filteredMaintenances.length > 0 && (
+        <div className="glass-panel" style={{ padding: 0, overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
             <thead>
-              <tr style={{ background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: 'var(--text-secondary)' }}>
-                <th style={{ padding: '14px' }}>Cód. OS / Data</th>
-                <th style={{ padding: '14px' }}>Equipamento</th>
-                <th style={{ padding: '14px' }}>Tipo</th>
-                <th style={{ padding: '14px' }}>Horímetro</th>
+              <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
+                <th style={{ padding: '14px' }}>Data / Horímetro</th>
+                <th style={{ padding: '14px' }}>Equipamento Vinculado</th>
+                <th style={{ padding: '14px' }}>Tipo & Status OS</th>
                 <th style={{ padding: '14px' }}>Serviços Realizados</th>
-                <th style={{ padding: '14px' }}>Mecânico / Oficina</th>
-                <th style={{ padding: '14px' }}>Downtime</th>
-                <th style={{ padding: '14px' }}>Custo Total</th>
-                <th style={{ padding: '14px' }}>Status</th>
+                <th style={{ padding: '14px' }}>Parada (Downtime)</th>
+                {isAdmin && <th style={{ padding: '14px' }}>Custo Total</th>}
                 <th style={{ padding: '14px', textAlign: 'right' }}>Ações</th>
               </tr>
             </thead>
@@ -159,89 +136,95 @@ export default function MaintenanceList({
                 const eq = equipments.find(e => e.id === m.equipamentoId);
 
                 return (
-                  <tr key={m.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.15s' }}>
+                  <tr key={m.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     
-                    {/* OS Code & Date */}
+                    {/* Date & Horimeter */}
                     <td style={{ padding: '14px' }}>
-                      <div style={{ fontWeight: 700, color: 'var(--color-amber)' }}>#{m.id}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{m.dataRevisao}</div>
+                      <strong style={{ display: 'block' }}>{m.dataRevisao}</strong>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{m.horimetro} hrs</span>
                     </td>
 
-                    {/* Equipment Tag & Model */}
+                    {/* Equipment */}
                     <td style={{ padding: '14px' }}>
                       {eq ? (
                         <>
-                          <div style={{ fontWeight: 700 }}>{eq.marca} {eq.modelo}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Tag: {eq.numeroInventario}</div>
+                          <strong style={{ display: 'block', color: 'var(--text-primary)' }}>
+                            {eq.marca} {eq.modelo}
+                          </strong>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-amber)', fontWeight: 700 }}>
+                            Tag: {eq.numeroInventario}
+                          </span>
                         </>
                       ) : (
-                        <span style={{ color: 'var(--text-muted)' }}>Removido</span>
+                        <span style={{ color: 'var(--text-muted)' }}>Desconhecido</span>
                       )}
                     </td>
 
-                    {/* Type Badge */}
+                    {/* Type & Status */}
                     <td style={{ padding: '14px' }}>
-                      <span className={`badge ${m.tipo === 'Preventiva' ? 'badge-success' : 'badge-danger'}`}>
-                        {m.tipo}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                        <span className={`badge ${m.tipo === 'Preventiva' ? 'badge-success' : 'badge-danger'}`}>
+                          {m.tipo}
+                        </span>
+
+                        {/* Status Select */}
+                        <select
+                          className="form-select"
+                          value={m.statusOS || 'Aberta'}
+                          onChange={(e) => onUpdateOSStatus(m.id, e.target.value)}
+                          style={{
+                            height: '28px',
+                            padding: '2px 8px',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            borderRadius: '4px',
+                            background: m.statusOS === 'Concluída' ? 'var(--color-success-bg)' : m.statusOS === 'Em Andamento' ? 'var(--color-warning-bg)' : 'var(--color-info-bg)',
+                            color: m.statusOS === 'Concluída' ? 'var(--color-success)' : m.statusOS === 'Em Andamento' ? 'var(--color-warning)' : 'var(--color-info)',
+                            border: '1px solid var(--border-color)'
+                          }}
+                        >
+                          <option value="Aberta">OS Aberta</option>
+                          <option value="Em Andamento">Em Andamento</option>
+                          <option value="Concluída">Concluída</option>
+                        </select>
+                      </div>
                     </td>
 
-                    {/* Horimeter */}
-                    <td style={{ padding: '14px', fontWeight: 600 }}>{m.horimetro} h</td>
-
-                    {/* Services Summary */}
-                    <td style={{ padding: '14px', maxWidth: '240px' }}>
-                      <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={m.itensServicos}>
+                    {/* Services */}
+                    <td style={{ padding: '14px', maxWidth: '300px' }}>
+                      <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-primary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {m.itensServicos}
-                      </div>
-                      {m.tipo === 'Corretiva' && m.causaFalhaDiagnostico && (
-                        <div style={{ fontSize: '0.7rem', color: 'var(--color-warning)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          Diag: {m.causaFalhaDiagnostico}
-                        </div>
+                      </p>
+                      {m.mecanicoResponsavel && (
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px', display: 'block' }}>
+                          Mecânico: <strong>{m.mecanicoResponsavel}</strong>
+                        </span>
                       )}
-                    </td>
-
-                    {/* Mechanic & Workshop */}
-                    <td style={{ padding: '14px' }}>
-                      <div>{m.mecanicoResponsavel}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {m.oficinaTipo === 'terceirizada' ? `${m.oficinaNome} (Terceirizada)` : 'Oficina Interna'}
-                      </div>
                     </td>
 
                     {/* Downtime */}
-                    <td style={{ padding: '14px', fontWeight: 600, color: m.downtimeHoras > 12 ? '#ef4444' : 'inherit' }}>
-                      {m.downtimeHoras} h
+                    <td style={{ padding: '14px', fontWeight: 700, color: '#ef4444' }}>
+                      {m.downtimeHoras || 0} hrs
                     </td>
 
-                    {/* Cost */}
-                    <td style={{ padding: '14px', fontWeight: 700, color: 'var(--color-amber)' }}>
-                      R$ {Number(m.custoTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </td>
-
-                    {/* OS Status Select / Badge */}
-                    <td style={{ padding: '14px' }}>
-                      <select 
-                        className="form-select"
-                        style={{ padding: '4px 8px', fontSize: '0.75rem', height: '28px', width: 'auto' }}
-                        value={m.statusOS}
-                        onChange={(e) => onUpdateOSStatus(m.id, e.target.value)}
-                      >
-                        <option value="Aberta">Aberta</option>
-                        <option value="Em Andamento">Em Andamento</option>
-                        <option value="Concluída">Concluída</option>
-                      </select>
-                    </td>
+                    {/* Total Cost (Admin Only) */}
+                    {isAdmin && (
+                      <td style={{ padding: '14px', fontWeight: 800, color: 'var(--color-amber)' }}>
+                        R$ {Number(m.custoTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </td>
+                    )}
 
                     {/* Actions */}
                     <td style={{ padding: '14px', textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px' }}>
-                        <button className="btn btn-secondary btn-icon" onClick={() => onEditOS(m)} title="Editar OS">
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                        <button className="btn btn-secondary btn-icon" title="Editar OS" onClick={() => onEditOS(m)}>
                           <Edit3 size={14} />
                         </button>
-                        <button className="btn btn-secondary btn-icon" style={{ color: 'var(--color-danger)' }} onClick={() => onDeleteOS(m.id)} title="Excluir OS">
-                          <Trash2 size={14} />
-                        </button>
+                        {isAdmin && (
+                          <button className="btn btn-secondary btn-icon" title="Excluir OS" style={{ color: 'var(--color-danger)' }} onClick={() => onDeleteOS(m.id)}>
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     </td>
 
@@ -250,8 +233,8 @@ export default function MaintenanceList({
               })}
             </tbody>
           </table>
-        )}
-      </div>
+        </div>
+      )}
 
     </div>
   );

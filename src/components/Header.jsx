@@ -11,10 +11,14 @@ import {
   Bell,
   BarChart2,
   Settings,
-  X
+  X,
+  Shield,
+  UserCheck
 } from 'lucide-react';
 import { isFirebaseConfigured } from '../services/firebase';
 import { notificationService } from '../services/notificationService';
+import { authService, USER_ROLES } from '../services/authService';
+import RoleSelectionModal from './RoleSelectionModal';
 
 export default function Header({
   activeTab,
@@ -23,14 +27,18 @@ export default function Header({
   onOpenNewMaintenance,
   onClearAllData,
   onLoadDemoData,
-  onOpenFirebaseConfig
+  onOpenFirebaseConfig,
+  currentRole,
+  onRoleChanged
 }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     notificationService.getPermissionStatus() === 'granted'
   );
 
   const isCloudActive = isFirebaseConfigured();
+  const isAdmin = currentRole === USER_ROLES.ADMIN;
 
   const handleToggleNotifications = async () => {
     const granted = await notificationService.requestPermission();
@@ -42,7 +50,7 @@ export default function Header({
       <header className="glass-panel" style={{ borderRadius: 0, borderTop: 0, borderLeft: 0, borderRight: 0, padding: '12px 16px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', width: '100%' }}>
           
-          {/* Brand & Logo */}
+          {/* Brand & Active Role Badge */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               background: 'var(--gradient-amber)',
@@ -53,11 +61,39 @@ export default function Header({
               justifyContent: 'center',
               boxShadow: 'var(--shadow-amber)'
             }}>
-              <Wrench size={22} color="#0f172a" />
+              <Wrench size={20} color="#0f172a" />
             </div>
-            <h1 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
-              TR Heavy Ops
-            </h1>
+            
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h1 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                TR Heavy Ops
+              </h1>
+
+              {/* Role Badge Trigger */}
+              <button
+                onClick={() => setIsRoleModalOpen(true)}
+                style={{
+                  background: isAdmin ? 'rgba(245,158,11,0.18)' : 'rgba(59,130,246,0.18)',
+                  border: `1px solid ${isAdmin ? 'rgba(245,158,11,0.4)' : 'rgba(59,130,246,0.4)'}`,
+                  color: isAdmin ? 'var(--color-amber)' : '#3b82f6',
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  padding: '1px 6px',
+                  borderRadius: '4px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer',
+                  marginTop: '2px',
+                  width: 'fit-content'
+                }}
+                title="Clique para alternar o perfil de conta"
+              >
+                {isAdmin ? <Shield size={10} /> : <Wrench size={10} />}
+                <span>{isAdmin ? '👨‍💼 Admin' : '🔧 Mecânico'}</span>
+                <span style={{ opacity: 0.6, fontSize: '0.6rem' }}>(Trocar)</span>
+              </button>
+            </div>
           </div>
 
           {/* Right actions: Nova OS button + Settings Gear */}
@@ -67,7 +103,7 @@ export default function Header({
               onClick={onOpenNewMaintenance} 
               style={{ 
                 height: '38px', 
-                padding: '0 16px', 
+                padding: '0 14px', 
                 fontSize: '0.85rem', 
                 fontWeight: 700,
                 display: 'flex',
@@ -92,7 +128,7 @@ export default function Header({
         </div>
       </header>
 
-      {/* Settings Modal (Engrenagem) with Mobile Native Touch Scroll */}
+      {/* Settings Modal (Engrenagem) */}
       {isSettingsOpen && (
         <div className="modal-overlay" onClick={() => setIsSettingsOpen(false)}>
           <div 
@@ -115,18 +151,18 @@ export default function Header({
               </button>
             </div>
 
-            {/* Modal Body with native scroll */}
+            {/* Modal Body */}
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               
-              {/* Option 1: Cloud Sync Firebase */}
+              {/* Option 0: Profile Selector */}
               <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem' }}>
-                    <Cloud size={18} color={isCloudActive ? 'var(--color-success)' : 'var(--color-warning)'} />
-                    Sincronização na Nuvem
+                    <UserCheck size={18} color="var(--color-amber)" />
+                    Perfil da Conta
                   </div>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
-                    {isCloudActive ? 'Conectado em tempo real ao Firebase' : 'Configurar chave do Firebase'}
+                    Perfil Ativo: <strong>{isAdmin ? 'Administrador' : 'Mecânico'}</strong>
                   </p>
                 </div>
                 <button 
@@ -134,14 +170,14 @@ export default function Header({
                   style={{ fontSize: '0.8rem', padding: '6px 12px' }}
                   onClick={() => {
                     setIsSettingsOpen(false);
-                    onOpenFirebaseConfig();
+                    setIsRoleModalOpen(true);
                   }}
                 >
-                  Configurar
+                  Alternar
                 </button>
               </div>
 
-              {/* Option 2: Mobile Push Notifications */}
+              {/* Option 1: Mobile Push Notifications (Always visible) */}
               <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem' }}>
@@ -161,66 +197,103 @@ export default function Header({
                 </button>
               </div>
 
-              {/* Option 3: Load Demo Data */}
-              <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem' }}>
-                    <Database size={18} color="#3b82f6" />
-                    Base Exemplo
+              {/* Admin-Only Settings Options */}
+              {isAdmin && (
+                <>
+                  {/* Option 2: Cloud Sync Firebase */}
+                  <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem' }}>
+                        <Cloud size={18} color={isCloudActive ? 'var(--color-success)' : 'var(--color-warning)'} />
+                        Sincronização na Nuvem
+                      </div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                        {isCloudActive ? 'Conectado ao Firebase' : 'Configurar chaves'}
+                      </p>
+                    </div>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+                      onClick={() => {
+                        setIsSettingsOpen(false);
+                        onOpenFirebaseConfig();
+                      }}
+                    >
+                      Configurar
+                    </button>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
-                    Carregar dados demonstrativos
-                  </p>
-                </div>
-                <button 
-                  className="btn btn-secondary" 
-                  style={{ fontSize: '0.8rem', padding: '6px 12px' }}
-                  onClick={() => {
-                    setIsSettingsOpen(false);
-                    onLoadDemoData();
-                  }}
-                >
-                  Carregar
-                </button>
-              </div>
 
-              {/* Option 4: Clear Base Data */}
-              <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--color-danger-bg)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-danger)' }}>
-                    <Trash2 size={18} color="var(--color-danger)" />
-                    Zerar Memória
+                  {/* Option 3: Load Demo Data */}
+                  <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem' }}>
+                        <Database size={18} color="#3b82f6" />
+                        Base Exemplo
+                      </div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                        Carregar dados demonstrativos
+                      </p>
+                    </div>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+                      onClick={() => {
+                        setIsSettingsOpen(false);
+                        onLoadDemoData();
+                      }}
+                    >
+                      Carregar
+                    </button>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
-                    Excluir todos os registros da nuvem
-                  </p>
-                </div>
-                <button 
-                  className="btn btn-secondary" 
-                  style={{ fontSize: '0.8rem', padding: '6px 12px', color: 'var(--color-danger)', borderColor: 'rgba(239,68,68,0.4)' }}
-                  onClick={() => {
-                    setIsSettingsOpen(false);
-                    onClearAllData();
-                  }}
-                >
-                  Zerar Tudo
-                </button>
-              </div>
+
+                  {/* Option 4: Clear Base Data */}
+                  <div style={{ padding: '14px', borderRadius: 'var(--radius-md)', background: 'var(--color-danger-bg)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-danger)' }}>
+                        <Trash2 size={18} color="var(--color-danger)" />
+                        Zerar Memória
+                      </div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                        Excluir todos os registros da nuvem
+                      </p>
+                    </div>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ fontSize: '0.8rem', padding: '6px 12px', color: 'var(--color-danger)', borderColor: 'rgba(239,68,68,0.4)' }}
+                      onClick={() => {
+                        setIsSettingsOpen(false);
+                        onClearAllData();
+                      }}
+                    >
+                      Zerar Tudo
+                    </button>
+                  </div>
+                </>
+              )}
 
             </div>
           </div>
         </div>
       )}
 
-      {/* Sticky Bottom Bar for Navigation across all viewports */}
+      {/* Role Switcher Modal */}
+      <RoleSelectionModal
+        isOpen={isRoleModalOpen}
+        onClose={() => setIsRoleModalOpen(false)}
+        onRoleChanged={onRoleChanged}
+      />
+
+      {/* Sticky Bottom Navigation Bar (Filtered by Role) */}
       <div className="mobile-bottom-bar">
-        <button 
-          className={`mobile-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dashboard')}
-        >
-          <BarChart2 size={20} />
-          <span>KPIs</span>
-        </button>
+        {isAdmin && (
+          <button 
+            className={`mobile-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <BarChart2 size={20} />
+            <span>KPIs</span>
+          </button>
+        )}
 
         <button 
           className={`mobile-nav-item ${activeTab === 'equipments' ? 'active' : ''}`}
@@ -252,13 +325,15 @@ export default function Header({
           )}
         </button>
 
-        <button 
-          className={`mobile-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
-          onClick={() => setActiveTab('reports')}
-        >
-          <FileText size={20} />
-          <span>Relatórios</span>
-        </button>
+        {isAdmin && (
+          <button 
+            className={`mobile-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
+            onClick={() => setActiveTab('reports')}
+          >
+            <FileText size={20} />
+            <span>Relatórios</span>
+          </button>
+        )}
       </div>
     </>
   );

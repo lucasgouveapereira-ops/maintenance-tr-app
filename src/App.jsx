@@ -14,9 +14,11 @@ import { cloudSyncService } from './services/cloudSyncService';
 import { storageService } from './services/storageService';
 import { calculateGlobalKPIs } from './services/kpiCalculator';
 import { notificationService } from './services/notificationService';
+import { authService, USER_ROLES } from './services/authService';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('equipments');
+  const [currentRole, setCurrentRole] = useState(authService.getCurrentRole());
+  const [activeTab, setActiveTab] = useState(currentRole === USER_ROLES.MECHANIC ? 'maintenances' : 'equipments');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Main Real-Time Cloud State
@@ -35,6 +37,14 @@ export default function App() {
   const [defaultEquipmentIdForOS, setDefaultEquipmentIdForOS] = useState('');
 
   const [isFirebaseConfigOpen, setIsFirebaseConfigOpen] = useState(false);
+
+  // Handle role changed
+  const handleRoleChanged = (newRole) => {
+    setCurrentRole(newRole);
+    if (newRole === USER_ROLES.MECHANIC && (activeTab === 'dashboard' || activeTab === 'reports')) {
+      setActiveTab('maintenances');
+    }
+  };
 
   // Subscribe to Real-Time Cloud Listeners (Firestore onSnapshot)
   useEffect(() => {
@@ -158,12 +168,14 @@ export default function App() {
         onClearAllData={handleClearAllData}
         onLoadDemoData={handleLoadDemoData}
         onOpenFirebaseConfig={() => setIsFirebaseConfigOpen(true)}
+        currentRole={currentRole}
+        onRoleChanged={handleRoleChanged}
       />
 
       {/* Main View Area */}
       <main className="main-content">
         
-        {activeTab === 'dashboard' && (
+        {activeTab === 'dashboard' && currentRole === USER_ROLES.ADMIN && (
           <Dashboard
             kpis={kpis}
             equipments={equipments}
@@ -185,6 +197,7 @@ export default function App() {
             onDeleteEquipment={handleDeleteEquipment}
             onSelectEquipment={handleSelectEquipment}
             onOpenNewOS={handleOpenNewOS}
+            currentRole={currentRole}
           />
         )}
 
@@ -198,6 +211,7 @@ export default function App() {
             onEditOS={handleOpenEditOS}
             onDeleteOS={handleDeleteMaintenance}
             onUpdateOSStatus={handleUpdateOSStatus}
+            currentRole={currentRole}
           />
         )}
 
@@ -210,7 +224,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'reports' && (
+        {activeTab === 'reports' && currentRole === USER_ROLES.ADMIN && (
           <ReportsView
             equipments={equipments}
             maintenances={maintenances}
@@ -221,7 +235,7 @@ export default function App() {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid var(--border-color)', padding: '16px 24px', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        TR Heavy Ops — Sistema Integrado de Gestão de Manutenção em Nuvem Real-Time | PWA Mobile & NR-12/19 Compliant
+        TR Heavy Ops — Sistema Integrado de Gestão de Manutenção em Nuvem Real-Time | Perfil: <strong>{currentRole === USER_ROLES.ADMIN ? '👨‍💼 Administrador' : '🔧 Mecânico'}</strong>
       </footer>
 
       {/* Modals */}
@@ -238,6 +252,7 @@ export default function App() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         onOpenNewOS={handleOpenNewOS}
+        currentRole={currentRole}
       />
 
       <MaintenanceFormModal
@@ -247,6 +262,7 @@ export default function App() {
         isOpen={isMaintenanceFormOpen}
         onClose={() => setIsMaintenanceFormOpen(false)}
         onSave={handleSaveMaintenance}
+        currentRole={currentRole}
       />
 
       <FirebaseConfigModal

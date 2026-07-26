@@ -1,72 +1,52 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   X, 
-  Printer, 
   Wrench, 
-  ShieldCheck, 
   Clock, 
   DollarSign, 
-  Activity, 
-  MapPin, 
-  UserCheck, 
+  ShieldCheck, 
+  FileText, 
   Plus, 
-  FileText,
+  MapPin, 
+  Calendar,
   AlertTriangle,
-  ChevronRight
+  UserCheck
 } from 'lucide-react';
 import { calculateEquipmentMetrics } from '../services/kpiCalculator';
-import { printElement } from '../services/pdfExporter';
+import { USER_ROLES } from '../services/authService';
 
-export default function EquipmentDetailModal({ equipment, maintenances, isOpen, onClose, onOpenNewOS }) {
+export default function EquipmentDetailModal({ equipment, maintenances, isOpen, onClose, onOpenNewOS, currentRole }) {
   if (!isOpen || !equipment) return null;
 
+  const isAdmin = currentRole === USER_ROLES.ADMIN;
   const metrics = calculateEquipmentMetrics(equipment, maintenances);
-  const eqMaintenances = maintenances
-    .filter(m => m.equipamentoId === equipment.id)
-    .sort((a, b) => new Date(b.dataRevisao) - new Date(a.dataRevisao));
-
-  const handlePrint = () => {
-    printElement('equipment-detail-print-area', `Ficha Técnica - ${equipment.marca} ${equipment.modelo} (${equipment.numeroInventario})`);
-  };
+  const eqMaintenances = maintenances.filter(m => m.equipamentoId === equipment.id);
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content glass-panel" style={{ maxWidth: '950px' }}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content glass-panel" style={{ maxWidth: '900px' }} onClick={(e) => e.stopPropagation()}>
         
         {/* Header */}
         <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ padding: '8px', background: 'var(--color-amber)', borderRadius: 'var(--radius-md)', color: '#0f172a' }}>
-              <Wrench size={20} />
-            </div>
-            <div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-                Ficha Técnica 360° — {equipment.marca} {equipment.modelo}
-              </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
-                Tag Interna: <strong>{equipment.numeroInventario}</strong> | Série: {equipment.numeroSerie}
-              </p>
-            </div>
+          <div>
+            <span className="badge badge-warning" style={{ marginBottom: '4px' }}>
+              Tag: {equipment.numeroInventario}
+            </span>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
+              Ficha Técnica 360° — {equipment.marca} {equipment.modelo}
+            </h3>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <button className="btn btn-secondary" onClick={handlePrint} style={{ height: '36px', fontSize: '0.8rem' }}>
-              <Printer size={16} /> Impressão / PDF
-            </button>
-            <button className="btn btn-primary" onClick={() => onOpenNewOS(equipment.id)} style={{ height: '36px', fontSize: '0.8rem' }}>
-              <Plus size={16} /> Nova OS
-            </button>
-            <button className="btn btn-secondary btn-icon" onClick={onClose} style={{ height: '36px', width: '36px' }}>
-              <X size={18} />
-            </button>
-          </div>
+          <button className="btn btn-secondary btn-icon" onClick={onClose}>
+            <X size={18} />
+          </button>
         </div>
 
-        {/* Printable & Visible Body */}
-        <div className="modal-body" id="equipment-detail-print-area" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Modal Body */}
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          {/* Top Banner: Equipment Photo & Main Technical Specs */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', background: 'var(--bg-tertiary)', padding: '20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
+          {/* Main Info Header Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
             
             {/* Image */}
             <div style={{ height: '200px', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: '#000' }}>
@@ -94,9 +74,14 @@ export default function EquipmentDetailModal({ equipment, maintenances, isOpen, 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.82rem', marginTop: '12px' }}>
                 <div><strong>Ano Fabricação:</strong> {equipment.anoFabricacao}</div>
                 <div><strong>Horímetro Atual:</strong> {equipment.horimetroAtual} hrs</div>
-                <div><strong>Data Aquisição:</strong> {equipment.dataAquisicao || 'N/A'}</div>
-                <div><strong>Valor Compra:</strong> R$ {equipment.valorCompra ? Number(equipment.valorCompra).toLocaleString('pt-BR') : 'N/A'}</div>
-                <div><strong>Fornecedor:</strong> {equipment.fornecedor || 'N/A'}</div>
+                <div><strong>Nº de Série:</strong> {equipment.numeroSerie}</div>
+                {isAdmin && (
+                  <>
+                    <div><strong>Data Aquisição:</strong> {equipment.dataAquisicao || 'N/A'}</div>
+                    <div><strong>Valor Compra:</strong> R$ {equipment.valorCompra ? Number(equipment.valorCompra).toLocaleString('pt-BR') : 'N/A'}</div>
+                    <div><strong>Fornecedor:</strong> {equipment.fornecedor || 'N/A'}</div>
+                  </>
+                )}
                 <div><strong>Garantia:</strong> {equipment.prazoGarantia || 'N/A'}</div>
               </div>
             </div>
@@ -106,12 +91,14 @@ export default function EquipmentDetailModal({ equipment, maintenances, isOpen, 
           {/* Individual Equipment KPI Metrics Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
             
-            <div style={{ padding: '14px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>CUSTO ACUMULADO</span>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-amber)', marginTop: '4px' }}>
-                R$ {metrics.totalCost.toLocaleString('pt-BR')}
+            {isAdmin && (
+              <div style={{ padding: '14px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>CUSTO ACUMULADO</span>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-amber)', marginTop: '4px' }}>
+                  R$ {metrics.totalCost.toLocaleString('pt-BR')}
+                </div>
               </div>
-            </div>
+            )}
 
             <div style={{ padding: '14px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>DOWNTIME TOTAL</span>
@@ -206,43 +193,49 @@ export default function EquipmentDetailModal({ equipment, maintenances, isOpen, 
                         <span className={`badge ${m.tipo === 'Preventiva' ? 'badge-success' : 'badge-danger'}`}>
                           {m.tipo}
                         </span>
-                        <span className="badge badge-info">{m.statusOS}</span>
-                        <strong style={{ fontSize: '0.9rem' }}>OS #{m.id} — {m.dataRevisao}</strong>
+                        <strong style={{ fontSize: '0.9rem' }}>Data: {m.dataRevisao}</strong>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>({m.horimetro} hrs)</span>
                       </div>
 
-                      <div style={{ fontSize: '0.85rem', color: 'var(--color-amber)', fontWeight: 700 }}>
-                        Custo Total: R$ {Number(m.custoTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </div>
+                      {isAdmin && (
+                        <span style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-amber)' }}>
+                          R$ {Number(m.custoTotal || 0).toLocaleString('pt-BR')}
+                        </span>
+                      )}
                     </div>
 
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                       <strong>Serviços:</strong> {m.itensServicos}
-                    </div>
+                    </p>
 
-                    {m.tipo === 'Corretiva' && m.causaFalhaDiagnostico && (
-                      <div style={{ fontSize: '0.8rem', color: 'var(--color-warning)', background: 'var(--color-warning-bg)', padding: '6px 10px', borderRadius: '4px' }}>
-                        <strong>Causa da Falha / Diagnóstico:</strong> {m.causaFalhaDiagnostico}
-                      </div>
+                    {m.causaFalhaDiagnostico && (
+                      <p style={{ fontSize: '0.8rem', color: 'var(--color-warning)', background: 'var(--color-warning-bg)', padding: '6px 10px', borderRadius: '4px' }}>
+                        <strong>Causa / Diagnóstico:</strong> {m.causaFalhaDiagnostico}
+                      </p>
                     )}
 
-                    <div style={{ display: 'flex', gap: '16px', fontSize: '0.78rem', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
-                      <span>Horímetro na OS: <strong>{m.horimetro} h</strong></span>
-                      <span>Downtime: <strong>{m.downtimeHoras} h</strong></span>
-                      <span>Mecânico: <strong>{m.mecanicoResponsavel}</strong></span>
-                      <span>Oficina: <strong>{m.oficinaTipo === 'terceirizada' ? `${m.oficinaNome} (Terceirizada)` : 'Interna'}</strong></span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', paddingTop: '6px', borderTop: '1px dashed var(--border-color)' }}>
+                      <span>Mecânico: <strong>{m.mecanicoResponsavel || 'Não especificado'}</strong></span>
+                      <span>Oficina: {m.oficinaNome}</span>
+                      <span>Parada: {m.downtimeHoras}h</span>
                     </div>
-
-                    {m.pecas && m.pecas.length > 0 && (
-                      <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed var(--border-color)', fontSize: '0.78rem' }}>
-                        <strong>Peças Substituídas:</strong> {m.pecas.map(p => `${p.nome} (${p.quantidade}x R$ ${p.valorUnitario})`).join(', ')}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
             )}
           </div>
 
+        </div>
+
+        {/* Modal Footer Actions */}
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>
+            Fechar
+          </button>
+          <button className="btn btn-primary" onClick={() => { onClose(); onOpenNewOS(equipment.id); }}>
+            <Plus size={16} />
+            <span>Abrir Nova OS para esta Máquina</span>
+          </button>
         </div>
 
       </div>
