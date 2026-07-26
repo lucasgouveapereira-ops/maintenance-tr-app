@@ -235,7 +235,7 @@ export default function App() {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid var(--border-color)', padding: '16px 24px', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        TR Heavy Ops — Sistema Integrado de Gestão de Manutenção em Nuvem Real-Time | Perfil: <strong>{currentRole === USER_ROLES.ADMIN ? '👨‍💼 Administrador' : '🔧 Mecânico'}</strong>
+        Tec Rochas — Sistema Integrado de Gestão de Manutenção em Nuvem Real-Time | Perfil: <strong>{currentRole === USER_ROLES.ADMIN ? '👨‍💼 Administrador' : '🔧 Mecânico'}</strong>
       </footer>
 
       {/* Modals */}

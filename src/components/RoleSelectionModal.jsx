@@ -56,9 +56,9 @@ export default function RoleSelectionModal({ isOpen, onClose, onRoleChanged }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div 
-        className="modal-content glass-panel" 
-        onClick={(e) => e.stopPropagation()} 
+      <div
+        className="modal-content glass-panel"
+        onClick={(e) => e.stopPropagation()}
         style={{ maxWidth: '440px', width: '100%' }}
       >
         {/* Modal Header */}
@@ -80,9 +80,9 @@ export default function RoleSelectionModal({ isOpen, onClose, onRoleChanged }) {
 
           {/* Role Options */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-            
+
             {/* Admin Option */}
-            <div 
+            <div
               onClick={() => handleSelectRole(USER_ROLES.ADMIN)}
               style={{
                 padding: '16px',
@@ -113,7 +113,7 @@ export default function RoleSelectionModal({ isOpen, onClose, onRoleChanged }) {
             </div>
 
             {/* Mechanic Option */}
-            <div 
+            <div
               onClick={() => handleSelectRole(USER_ROLES.MECHANIC)}
               style={{
                 padding: '16px',
@@ -153,7 +153,7 @@ export default function RoleSelectionModal({ isOpen, onClose, onRoleChanged }) {
                   <Lock size={14} color="var(--color-amber)" />
                   Senha / PIN de Administrador *
                 </label>
-                <input 
+                <input
                   type="password"
                   className="form-input"
                   placeholder="Digite a senha (padrão: 1234)"
@@ -193,9 +193,9 @@ export default function RoleSelectionModal({ isOpen, onClose, onRoleChanged }) {
           {/* Change Admin PIN Accordion */}
           {currentRole === USER_ROLES.ADMIN && (
             <div style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-              <button 
+              <button
                 type="button"
-                className="btn btn-secondary" 
+                className="btn btn-secondary"
                 style={{ fontSize: '0.75rem', padding: '4px 8px', width: '100%', justifyContent: 'center' }}
                 onClick={() => setShowPinChange(!showPinChange)}
               >
@@ -207,7 +207,7 @@ export default function RoleSelectionModal({ isOpen, onClose, onRoleChanged }) {
                 <form onSubmit={handleChangePin} style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px', background: 'var(--bg-tertiary)', padding: '12px', borderRadius: 'var(--radius-md)' }}>
                   <div>
                     <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Senha Atual</label>
-                    <input 
+                    <input
                       type="password"
                       className="form-input"
                       placeholder="Ex: 1234"
@@ -219,7 +219,7 @@ export default function RoleSelectionModal({ isOpen, onClose, onRoleChanged }) {
                   </div>
                   <div>
                     <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Nova Senha</label>
-                    <input 
+                    <input
                       type="password"
                       className="form-input"
                       placeholder="Mínimo 4 caracteres"

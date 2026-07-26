@@ -54,7 +54,7 @@ export default function Header({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img 
               src="/app-icon.png" 
-              alt="Tecrochas Logo" 
+              alt="Tec Rochas Logo" 
               style={{
                 width: '36px',
                 height: '36px',
@@ -68,7 +68,7 @@ export default function Header({
             
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <h1 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                Tecrochas
+                Tec Rochas
               </h1>
 
               {/* Role Badge Trigger */}

@@ -163,7 +163,7 @@ export default function ReportsView({ equipments, maintenances }) {
             </p>
           </div>
           <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            <strong>TR Heavy Ops System</strong><br />
+            <strong>Tec Rochas System</strong><br />
             Gestão de Máquinas Pesadas
           </div>
         </div>

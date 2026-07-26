@@ -81,7 +81,7 @@ export function printElement(elementId, title = 'Relatório de Manutenção') {
       </head>
       <body>
         <div style="margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-          <h2 style="margin: 0; color: #d97706;">TR Heavy Ops — Controle de Manutenção</h2>
+          <h2 style="margin: 0; color: #d97706;">Tec Rochas — Controle de Manutenção</h2>
           <p style="margin: 4px 0 0; color: #64748b; font-size: 13px;">Data de emissão: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}</p>
         </div>
         ${elem.innerHTML}
